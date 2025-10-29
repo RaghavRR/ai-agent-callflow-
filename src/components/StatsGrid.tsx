@@ -1,8 +1,8 @@
 import { Users, Phone, Clock, TrendingUp } from 'lucide-react';
 
 const stats = [
-  { label: 'Active Users', value: '2,547', icon: Users, color: 'text-primary' },
-  { label: 'Calls Today', value: '1,234', icon: Phone, color: 'text-secondary' },
+  { label: 'Active Users', value: '12', icon: Users, color: 'text-primary' },
+  { label: 'Calls Today', value: '4', icon: Phone, color: 'text-secondary' },
   { label: 'Avg Duration', value: '4:32', icon: Clock, color: 'text-primary' },
   { label: 'Growth', value: '+12.5%', icon: TrendingUp, color: 'text-secondary' },
 ];

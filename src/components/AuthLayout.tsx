@@ -16,9 +16,6 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
         <div className="absolute bottom-20 left-20 w-40 h-40 bg-secondary/20 rounded-full blur-3xl"></div>
         <div className="relative z-10 max-w-md">
           <div className="mb-8">
-            <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6">
-              <span className="text-sm font-semibold text-primary">Premium Platform</span>
-            </div>
           </div>
           <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/90 to-secondary bg-clip-text text-transparent leading-tight">
             CallFlow
@@ -26,20 +23,6 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
           <p className="text-xl text-muted-foreground leading-relaxed mb-8">
             Experience premium voice calling with seamless authentication and enterprise-grade security.
           </p>
-          <div className="flex gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary"></div>
-              <span className="text-muted-foreground">Secure</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-secondary"></div>
-              <span className="text-muted-foreground">Fast</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary"></div>
-              <span className="text-muted-foreground">Reliable</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -51,7 +34,7 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
               CallFlow
             </h1>
-            <p className="text-sm text-muted-foreground">Premium Voice Platform</p>
+            <p className="text-sm text-muted-foreground">Powered By Xcentic</p>
           </div>
 
           <div className="bg-card/50 backdrop-blur-sm border border-white/[0.08] rounded-3xl p-8 md:p-10 shadow-2xl hover:shadow-primary/5 transition-shadow">

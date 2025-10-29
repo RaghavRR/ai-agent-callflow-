@@ -11,7 +11,7 @@ export const DashboardHeader = () => {
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             CallFlow
           </h1>
-          <p className="text-xs text-muted-foreground">Premium Voice Platform</p>
+          <p className="text-xs text-muted-foreground">Powered By Xcentic</p>
         </div>
         <ProfileMenu user={user} />
       </div>

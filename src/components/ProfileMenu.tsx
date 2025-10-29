@@ -50,10 +50,6 @@ export const ProfileMenu = ({ user }: ProfileMenuProps) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-border/50" />
-        <DropdownMenuItem className="cursor-pointer focus:bg-muted/50">
-          <UserIcon className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>

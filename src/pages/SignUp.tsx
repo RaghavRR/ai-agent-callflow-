@@ -12,7 +12,6 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signup, token } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -39,11 +38,6 @@ const SignUp = () => {
 
     if (password.length < 8) {
       toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
       return;
     }
 
@@ -106,19 +100,6 @@ const SignUp = () => {
           <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="••••••••"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="h-11 bg-background/50 border-white/[0.06] focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-            disabled={isLoading}
-            required
-          />
-        </div>
 
         <Button
           type="submit"
