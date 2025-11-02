@@ -5,6 +5,8 @@ import SingleCall from "../models/SingleCall.js";
 import BulkCall from "../models/BulkCall.js";
 import User from "../models/TempUser.js";
 import { callPhoneNumber } from "../utils/callService.js";
+import Prompt from "../models/Prompt.js";
+
 
 const router = express.Router();
 
@@ -22,124 +24,106 @@ const protect = async (req, res, next) => {
   }
 };
 
-router.post("/singleCall", protect, async (req, res) => {
+router.post("/call", protect, async (req, res) => {
   try {
-    const { phone_number } = req.body;
+    const { business_type, phone_number } = req.body;
 
-    if (!phone_number || typeof phone_number !== "string") {
-      return res.status(400).json({ error: "phone_number is required" });
+    if (!phone_number) {
+      return res.status(400).json({ error: "Phone number is required" });
     }
-
-    console.log("Single Call Detected:", phone_number);
-    console.log("User ID:", req.user?._id);
 
     const callEntry = await SingleCall.create({
       user: req.user._id,
       phoneNumber: phone_number,
+      business_type: business_type || "General",
     });
 
-    console.log("Saved to SingleCall DB:", callEntry._id);
+    console.log("Call saved to DB:", callEntry._id);
+    console.log(`Business Call for ${business_type || "General"} → ${phone_number}`);
+    const aiResponse = await axios.post(
+      `${process.env.AI_SERVER_URL}/call`,
+      { business_type, phone_number },
+      {
+        headers: { "Content-Type": "application/json" },
+        timeout: 15000,
+      }
+    );
 
-    try {
-      const aiResponse = await axios.post(
-        process.env.AI_SERVER_URL,
-        { phone_number },
-        { headers: { "Content-Type": "application/json" }, timeout: 15000 }
-      );
-
-      console.log("AI Response (Single):", aiResponse.data);
-
-      return res.status(200).json({
-        message: "Single call stored & forwarded",
-        aiResponse: aiResponse.data,
-        data: callEntry,
-      });
-    } catch (err) {
-      console.error("AI server (single) error:", err.message);
-      return res.status(200).json({
-        message: "Single call stored locally but AI server unreachable",
-        error: err.message,
-        data: callEntry,
-      });
-    }
-  } catch (error) {
-    console.error("Main Single Call Error:", error);
-    return res.status(500).json({
-      message: "Call failed",
-      error: error.message || "Unexpected error",
+    res.status(200).json({
+      message: "Call initiated successfully",
+      aiResponse: aiResponse.data,
+      data: callEntry,
     });
+  } catch (err) {
+    console.error("Call initiation error:", err.message);
+    res.status(500).json({ message: "Call failed", error: err.message });
   }
 });
 
-
 router.post("/bulkCall", protect, async (req, res) => {
   try {
-    const { phoneNumbers } = req.body;
+    const { phoneNumbers, business_type } = req.body;
 
     if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
       return res.status(400).json({ error: "phoneNumbers array is required" });
     }
 
-    console.log("Bulk Call Detected:", phoneNumbers);
+    console.log("Bulk Call Initiated:", phoneNumbers.length);
     console.log("User ID:", req.user?._id);
 
     const bulkEntry = await BulkCall.create({
       user: req.user._id,
       phoneNumbers,
+      business_type: business_type || "General",
     });
 
-    console.log("✅ Saved to BulkCall DB:", bulkEntry._id);
+    console.log("Saved BulkCall entry:", bulkEntry._id);
 
-    const batchSize = 50; // Adjust as per server capacity
-    const localResults = [];
-
-    for (let i = 0; i < phoneNumbers.length; i += batchSize) {
-      const batch = phoneNumbers.slice(i, i + batchSize);
-      console.log(`Processing batch ${i / batchSize + 1} with ${batch.length} numbers...`);
-
-      const batchResults = await Promise.all(
-        batch.map(async (num) => {
-          try {
-            return await callPhoneNumber(num);
-          } catch (err) {
-            console.error(`Call failed for ${num}:`, err.message);
-            return { number: num, status: "failed", error: err.message };
-          }
-        })
-      );
-
-      localResults.push(...batchResults);
-    }
-
-    console.log("Local call simulations complete:", localResults.length);
     const aiResponses = [];
 
     for (const num of phoneNumbers) {
       try {
+        console.log(`Sending call request → ${num}`);
+
         const aiRes = await axios.post(
-          process.env.AI_SERVER_URL,
-          { phone_number: num },
+          `${process.env.AI_SERVER_URL}/call`,
+          {
+            phone_number: num,
+            business_type: business_type || "General",
+          },
           {
             headers: { "Content-Type": "application/json" },
             timeout: 15000,
           }
         );
 
-        console.log(`AI call success for ${num}:`, aiRes.data);
-        aiResponses.push({ number: num, status: "success", response: aiRes.data });
+        console.log("📡 AI Server Response Data:", aiRes.data);
+
+        
+        aiResponses.push({
+          number: num,
+          status: "success",
+          response: aiRes.data,
+        });
       } catch (err) {
         console.error(`AI call failed for ${num}:`, err.message);
-        aiResponses.push({ number: num, status: "failed", error: err.message });
+        aiResponses.push({
+          number: num,
+          status: "failed",
+          error: err.message,
+        });
       }
     }
 
-    console.log("✅ All AI calls processed:", aiResponses.length);
+    console.log("Bulk call processing complete:", aiResponses.length);
 
     return res.status(200).json({
-      message: "✅ Bulk call stored, simulated locally, and sent individually to AI server",
-      aiResponses,
-      localResults,
-      data: bulkEntry,
+      message: "Bulk calls processed successfully",
+      data: {
+        bulkId: bulkEntry._id,
+        totalNumbers: phoneNumbers.length,
+        aiResponses,
+      },
     });
   } catch (error) {
     console.error("Main Bulk Call Error:", error);

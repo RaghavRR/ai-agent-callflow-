@@ -1,7 +1,8 @@
-export interface User {
-  _id?: string;
+interface User {
+  id?: string;
   name: string;
   email: string;
+  token?: string; 
 }
 
 export interface AuthContextType {

@@ -1,31 +1,36 @@
 import { Users, Phone, Clock, TrendingUp } from 'lucide-react';
 
 const stats = [
-  { label: 'Active Users', value: '12', icon: Users, color: 'text-primary' },
-  { label: 'Calls Today', value: '4', icon: Phone, color: 'text-secondary' },
-  { label: 'Avg Duration', value: '4:32', icon: Clock, color: 'text-primary' },
-  { label: 'Growth', value: '+12.5%', icon: TrendingUp, color: 'text-secondary' },
+  { label: 'Active Users', value: '12', icon: Users },
+  { label: 'Calls Today', value: '4', icon: Phone },
+  { label: 'Avg Duration', value: '4:32', icon: Clock },
+  { label: 'Growth', value: '+12.5%', icon: TrendingUp },
 ];
 
 export const StatsGrid = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
           <div
             key={stat.label}
-            className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-white/[0.08] rounded-2xl p-6 hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 overflow-hidden"
+            className="relative bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-emerald-500/10"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 group-hover:scale-110 transition-transform`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
+            {/* Subtle gradient glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 opacity-0 hover:opacity-100 rounded-2xl transition-opacity duration-300"></div>
+
+            <div className="relative z-10 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-zinc-800">
+                  <Icon className="h-5 w-5 text-purple-400" />
                 </div>
-                <span className="text-3xl font-bold tracking-tight">{stat.value}</span>
+                <span className="text-3xl font-bold tracking-tight text-white">
+                  {stat.value}
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+
+              <p className="text-sm font-medium text-zinc-400">{stat.label}</p>
             </div>
           </div>
         );

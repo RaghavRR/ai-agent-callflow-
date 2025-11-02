@@ -3,10 +3,22 @@ import * as XLSX from "xlsx";
 import { useAuth } from "@/contexts/useAuth";
 import { toast } from "sonner";
 import { FileUploadSection } from "./FileUploadSection";
-import { NumbersPreview } from "./NumbersPreview";
 import { CallButton } from "./CallButton";
 
-export const BulkCallUploader = () => {
+interface Prefill {
+  business_type?: string;
+  prompt?: string;
+}
+
+interface BulkCallUploaderProps {
+  prefill?: Prefill;
+  businessType?: string;
+}
+
+export const BulkCallUploader = ({
+  prefill = {},
+  businessType = "",
+}: BulkCallUploaderProps) => {
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
@@ -17,32 +29,43 @@ export const BulkCallUploader = () => {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const data = new Uint8Array(event.target?.result as ArrayBuffer);
+      const result = event.target?.result;
+      if (!result || typeof result === "string") return;
+
+      const data = new Uint8Array(result);
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][];
+      const rows = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 });
 
       const numbers = rows
         .flat()
         .map((v) => String(v).trim())
         .filter((v) => /^\d{10,15}$/.test(v));
 
+      if (!numbers.length) return toast.error("No valid numbers found!");
+
       setPhoneNumbers(numbers);
       toast.success(`Loaded ${numbers.length} phone numbers`);
     };
+
     reader.readAsArrayBuffer(file);
   };
 
   const handleStartCalling = async () => {
-    if (!phoneNumbers.length) return toast.error("Upload an Excel file first!");
+    if (!phoneNumbers.length) return toast.error("Please upload a file first!");
+    if (!businessType.trim()) return toast.error("Enter a business type!");
     if (!token) return toast.error("Please login first!");
 
     setLoading(true);
     try {
-      const payload = { phoneNumbers: phoneNumbers.map((num) => `+91${num}`) };
-      console.log("📦 Sending payload:", payload);
+      const payload = {
+        business_type: businessType,
+        phoneNumbers: phoneNumbers.map((num) =>
+          num.startsWith("+") ? num : `+91${num}`
+        ),
+      };
 
-      const res = await fetch("/api/call/bulkCall", {
+      const res = await fetch("http://localhost:8000/api/call/bulkCall", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,31 +75,39 @@ export const BulkCallUploader = () => {
       });
 
       const data = await res.json();
-      console.log("📥 Response received:", data);
-
       if (res.ok) {
-        toast.success(`Bulk call triggered for ${phoneNumbers.length} numbers!`);
+        toast.success(`Bulk call triggered for ${phoneNumbers.length} numbers`);
         setPhoneNumbers([]);
       } else {
-        toast.error(`Failed: ${data.error || data.message}`);
+        toast.error(data.error || "Failed to trigger bulk call");
       }
     } catch (err) {
-      console.error("Error during bulk call (frontend):", err);
-      toast.error("Something went wrong while making calls.");
+      console.error(err);
+      toast.error("Something went wrong while starting the calls.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 sm:p-8 md:p-10 border border-white/[0.08] rounded-2xl bg-background/40 shadow-sm max-w-md w-full mx-auto space-y-6 sm:space-y-8">
-      <div className="text-xs text-muted-foreground bg-muted/20 p-2 rounded">
-        Token Status: {token ? "Available" : "Missing"}
+    <div className="mx-auto max-w-md w-full border border-gray-700/30 bg-zinc-900/40 rounded-xl p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold text-white mb-2">
+          Bulk Call Uploader
+        </h2>
+        <p className="text-sm text-gray-400">
+          Upload an Excel file containing phone numbers and trigger calls in one
+          go.
+        </p>
       </div>
 
       <FileUploadSection onFileUpload={handleFileUpload} />
 
-      <NumbersPreview phoneNumbers={phoneNumbers} />
+      {phoneNumbers.length > 0 && (
+        <div className="text-sm text-green-400">
+          {phoneNumbers.length} numbers ready to call
+        </div>
+      )}
 
       <CallButton
         onClick={handleStartCalling}

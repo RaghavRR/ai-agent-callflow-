@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       storage.set("authToken", data.token);
       storage.set("authUser", JSON.stringify({ name: data.name, email: data.email }));
       setToken(data.token);
-      setUser({ name: data.name, email: data.email });
+      setUser({ name: data.name, email: data.email, token: data.token });
     } catch (err: any) {
       console.error("Signup error:", err);
       alert(err.message);
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       storage.set("authToken", data.token);
       storage.set("authUser", JSON.stringify({ name: data.name, email: data.email }));
       setToken(data.token);
-      setUser({ name: data.name, email: data.email });
+      setUser({ name: data.name, email: data.email, token: data.token });
     } catch (err: any) {
       console.error("Signin error:", err);
       alert(err.message);

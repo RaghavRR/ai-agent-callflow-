@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 
 interface CallButtonProps {
@@ -19,13 +20,15 @@ export const CallButton = ({
     <Button
       onClick={onClick}
       disabled={disabled}
-      className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 rounded-xl transition-all disabled:opacity-50"
+      className="w-full h-11 font-medium bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg transition-all"
     >
       {loading
         ? "Calling..."
         : !token
-        ? "Please Login First"
-        : `Start Calls (${count || 0})`}
+        ? "Login to Start"
+        : count
+        ? `Start Calls (${count})`
+        : "Start Calls"}
     </Button>
   );
 };
